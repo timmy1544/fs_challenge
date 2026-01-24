@@ -25,11 +25,11 @@ const (
 
 // Client is a middleman between the websocket connection and the hub
 type Client struct {
-	hub        *Hub
-	conn       *websocket.Conn
-	send       chan []byte
-	workspaceID uuid.UUID
-	userID     uuid.UUID
+	hub      *Hub
+	conn     *websocket.Conn
+	send     chan []byte
+	projectID uuid.UUID
+	userID   uuid.UUID
 }
 
 // readPump pumps messages from the websocket connection to the hub
@@ -113,13 +113,13 @@ func (c *Client) writePump() {
 }
 
 // ServeWs handles websocket requests from clients
-func ServeWs(hub *Hub, conn *websocket.Conn, workspaceID, userID uuid.UUID) {
+func ServeWs(hub *Hub, conn *websocket.Conn, projectID, userID uuid.UUID) {
 	client := &Client{
-		hub:        hub,
-		conn:       conn,
-		send:       make(chan []byte, 256),
-		workspaceID: workspaceID,
-		userID:     userID,
+		hub:      hub,
+		conn:     conn,
+		send:     make(chan []byte, 256),
+		projectID: projectID,
+		userID:   userID,
 	}
 
 	client.hub.register <- client

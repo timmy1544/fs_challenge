@@ -2,19 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { WebSocketMessage } from '../types';
 
 interface UseWebSocketOptions {
-  workspaceId: string;
+  projectId: string;
   userId: string;
   onMessage?: (message: WebSocketMessage) => void;
 }
 
-export function useWebSocket({ workspaceId, userId, onMessage }: UseWebSocketOptions) {
+export function useWebSocket({ projectId, userId, onMessage }: UseWebSocketOptions) {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!workspaceId || !userId) return;
+    if (!projectId || !userId) return;
 
-    const wsUrl = `ws://localhost:8080/ws?workspace_id=${workspaceId}&user_id=${userId}`;
+    const wsUrl = `ws://localhost:8080/ws?project_id=${projectId}&user_id=${userId}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -40,7 +40,7 @@ export function useWebSocket({ workspaceId, userId, onMessage }: UseWebSocketOpt
       console.log('WebSocket disconnected');
       // Attempt to reconnect after 3 seconds
       setTimeout(() => {
-        if (workspaceId && userId) {
+        if (projectId && userId) {
           wsRef.current = new WebSocket(wsUrl);
         }
       }, 3000);
@@ -51,7 +51,7 @@ export function useWebSocket({ workspaceId, userId, onMessage }: UseWebSocketOpt
     return () => {
       ws.close();
     };
-  }, [workspaceId, userId, onMessage]);
+  }, [projectId, userId, onMessage]);
 
   return { isConnected };
 }

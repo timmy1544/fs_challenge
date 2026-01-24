@@ -2,11 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { taskApi } from '../api/tasks';
 import { Task, CreateTaskRequest, UpdateTaskRequest } from '../types';
 
-export function useTasks(workspaceId: string) {
+export function useTasks(projectId: string) {
   return useQuery({
-    queryKey: ['tasks', workspaceId],
-    queryFn: () => taskApi.getTasks(workspaceId),
-    enabled: !!workspaceId,
+    queryKey: ['tasks', projectId],
+    queryFn: () => taskApi.getTasks(projectId),
+    enabled: !!projectId,
   });
 }
 
@@ -24,7 +24,7 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (task: CreateTaskRequest) => taskApi.createTask(task),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', variables.workspace_id] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', variables.project_id] });
     },
   });
 }
@@ -49,6 +49,40 @@ export function useDeleteTask() {
     mutationFn: (id: string) => taskApi.deleteTask(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+}
+
+export function useTaskDependencies(taskId: string) {
+  return useQuery({
+    queryKey: ['task-dependencies', taskId],
+    queryFn: () => taskApi.getDependencies(taskId),
+    enabled: !!taskId,
+  });
+}
+
+export function useAddDependency() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ taskId, dependsOnId }: { taskId: string; dependsOnId: string }) =>
+      taskApi.addDependency(taskId, dependsOnId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['task-dependencies', variables.taskId] });
+      queryClient.invalidateQueries({ queryKey: ['task', variables.taskId] });
+    },
+  });
+}
+
+export function useRemoveDependency() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ taskId, dependsOnId }: { taskId: string; dependsOnId: string }) =>
+      taskApi.removeDependency(taskId, dependsOnId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['task-dependencies', variables.taskId] });
+      queryClient.invalidateQueries({ queryKey: ['task', variables.taskId] });
     },
   });
 }

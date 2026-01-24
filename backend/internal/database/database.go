@@ -50,7 +50,10 @@ func RunMigrations(db *gorm.DB) error {
 	// Auto-migrate will create tables if they don't exist
 	// In production, use proper migration tools like golang-migrate
 	return db.AutoMigrate(
+		&Project{},
 		&Task{},
+		&TaskDependency{},
+		&Comment{},
 		&TaskUpdate{},
 	)
 }

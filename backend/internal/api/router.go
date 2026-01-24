@@ -19,12 +19,33 @@ func NewRouter(db *gorm.DB, hub *websocket.Hub, redisClient *redis.Client) *gin.
 	// API routes
 	api := router.Group("/api/v1")
 	{
+		// Project routes
+		projectHandler := NewProjectHandler(db, hub)
+		api.GET("/projects", projectHandler.GetProjects)
+		api.GET("/projects/:id", projectHandler.GetProject)
+		api.POST("/projects", projectHandler.CreateProject)
+		api.PUT("/projects/:id", projectHandler.UpdateProject)
+		api.DELETE("/projects/:id", projectHandler.DeleteProject)
+
+		// Task routes
 		taskHandler := NewTaskHandler(db, hub)
 		api.GET("/tasks", taskHandler.GetTasks)
 		api.GET("/tasks/:id", taskHandler.GetTask)
 		api.POST("/tasks", taskHandler.CreateTask)
 		api.PUT("/tasks/:id", taskHandler.UpdateTask)
 		api.DELETE("/tasks/:id", taskHandler.DeleteTask)
+
+		// Task dependency routes
+		api.GET("/tasks/:id/dependencies", taskHandler.GetDependencies)
+		api.POST("/tasks/:id/dependencies", taskHandler.AddDependency)
+		api.DELETE("/tasks/:id/dependencies/:depends_on_id", taskHandler.RemoveDependency)
+
+		// Comment routes
+		commentHandler := NewCommentHandler(db, hub)
+		api.GET("/tasks/:task_id/comments", commentHandler.GetComments)
+		api.POST("/tasks/:task_id/comments", commentHandler.CreateComment)
+		api.PUT("/comments/:comment_id", commentHandler.UpdateComment)
+		api.DELETE("/comments/:comment_id", commentHandler.DeleteComment)
 	}
 
 	// WebSocket endpoint

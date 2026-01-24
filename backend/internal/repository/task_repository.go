@@ -32,9 +32,9 @@ func (r *TaskRepository) GetByID(id uuid.UUID) (*database.Task, error) {
 	return &task, nil
 }
 
-func (r *TaskRepository) GetByWorkspace(workspaceID uuid.UUID, limit, offset int) ([]database.Task, error) {
+func (r *TaskRepository) GetByProject(projectID uuid.UUID, limit, offset int) ([]database.Task, error) {
 	var tasks []database.Task
-	query := r.db.Where("workspace_id = ?", workspaceID)
+	query := r.db.Preload("Dependencies.DependsOn").Where("project_id = ?", projectID)
 	
 	if limit > 0 {
 		query = query.Limit(limit)
@@ -47,6 +47,17 @@ func (r *TaskRepository) GetByWorkspace(workspaceID uuid.UUID, limit, offset int
 		return nil, err
 	}
 	return tasks, nil
+}
+
+func (r *TaskRepository) GetByIDWithRelations(id uuid.UUID) (*database.Task, error) {
+	var task database.Task
+	if err := r.db.Preload("Dependencies.DependsOn").Preload("Comments.Replies").Where("id = ?", id).First(&task).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("task not found")
+		}
+		return nil, err
+	}
+	return &task, nil
 }
 
 func (r *TaskRepository) Update(task *database.Task) error {

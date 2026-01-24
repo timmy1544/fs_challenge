@@ -1,10 +1,10 @@
 import { apiClient } from './client';
-import { Task, CreateTaskRequest, UpdateTaskRequest } from '../types';
+import { Task, CreateTaskRequest, UpdateTaskRequest, TaskDependency } from '../types';
 
 export const taskApi = {
-  getTasks: async (workspaceId: string): Promise<Task[]> => {
+  getTasks: async (projectId: string): Promise<Task[]> => {
     const response = await apiClient.get<Task[]>('/tasks', {
-      params: { workspace_id: workspaceId },
+      params: { project_id: projectId },
     });
     return response.data;
   },
@@ -26,5 +26,21 @@ export const taskApi = {
 
   deleteTask: async (id: string): Promise<void> => {
     await apiClient.delete(`/tasks/${id}`);
+  },
+
+  getDependencies: async (taskId: string): Promise<TaskDependency[]> => {
+    const response = await apiClient.get<TaskDependency[]>(`/tasks/${taskId}/dependencies`);
+    return response.data;
+  },
+
+  addDependency: async (taskId: string, dependsOnId: string): Promise<TaskDependency> => {
+    const response = await apiClient.post<TaskDependency>(`/tasks/${taskId}/dependencies`, {
+      depends_on_id: dependsOnId,
+    });
+    return response.data;
+  },
+
+  removeDependency: async (taskId: string, dependsOnId: string): Promise<void> => {
+    await apiClient.delete(`/tasks/${taskId}/dependencies/${dependsOnId}`);
   },
 };

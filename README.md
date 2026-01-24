@@ -97,12 +97,20 @@ For detailed setup instructions, see [SETUP.md](./SETUP.md).
 
 ## Features
 
-- ✅ Real-time task updates across all clients
-- ✅ Multi-user collaboration
-- ✅ Optimistic UI updates
-- ✅ Horizontal scaling support
-- ✅ Conflict resolution
-- ✅ Offline support (planned)
+### Core Requirements
+- ✅ **Multiple Projects**: Users can create and manage multiple projects
+- ✅ **Task Management**: Add, update, and delete tasks within projects
+- ✅ **Task Dependencies**: Support for task dependencies with validation
+- ✅ **Status Transitions**: Validated status transitions (todo → in_progress → done, blocked states)
+- ✅ **Comment Threads**: Real-time comment threads on tasks with nested replies
+- ✅ **Real-Time Updates**: Changes visible to all clients in near real-time via WebSockets
+- ✅ **Data Consistency**: Optimistic locking and conflict resolution across clients
+
+### Technical Features
+- ✅ **Efficient Updates**: Delta updates (only changed fields) to handle large project payloads (2MB+)
+- ✅ **Horizontal Scaling**: Redis pub/sub for multi-instance WebSocket support
+- ✅ **No Managed Real-Time DB**: Built with PostgreSQL + Redis, no Firebase/Supabase
+- ✅ **Optimistic UI Updates**: Immediate UI feedback with rollback on error
 
 ## Development
 

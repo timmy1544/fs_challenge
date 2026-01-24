@@ -17,19 +17,19 @@ var upgrader = websocket.Upgrader{
 }
 
 func handleWebSocket(hub *websocket.Hub, c *gin.Context) {
-	// Get workspace ID and user ID from query params
+	// Get project ID and user ID from query params
 	// In production, get from JWT token
-	workspaceIDStr := c.Query("workspace_id")
+	projectIDStr := c.Query("project_id")
 	userIDStr := c.Query("user_id")
 
-	if workspaceIDStr == "" || userIDStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "workspace_id and user_id are required"})
+	if projectIDStr == "" || userIDStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "project_id and user_id are required"})
 		return
 	}
 
-	workspaceID, err := uuid.Parse(workspaceIDStr)
+	projectID, err := uuid.Parse(projectIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid workspace_id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid project_id"})
 		return
 	}
 
@@ -46,5 +46,5 @@ func handleWebSocket(hub *websocket.Hub, c *gin.Context) {
 		return
 	}
 
-	websocket.ServeWs(hub, conn, workspaceID, userID)
+	websocket.ServeWs(hub, conn, projectID, userID)
 }
